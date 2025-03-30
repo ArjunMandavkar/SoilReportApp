@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - SoilReportApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/SoilReportApp.styles.css" asp-append-version="true"/>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <image class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" src="/logo.jpg" style="width: 150px; border-radius: 15px"></image>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Requests">Requests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Reports">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="listUsersButton" class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Users" style="display: none;">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="createUserButton" style="display: none; cursor: pointer" class="nav-link text-dark" data-bs-toggle="modal" data-bs-target="#createUserModal">Create User</a>
+                    </li>
+                </ul>
+                <div class="d-flex" style="margin-right: 10px ">
+                    <button id="loginButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                    <button id="logoutButton" class="btn btn-danger" style="display: none;">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2025 - SoilReportApp
+    </div>
+</footer>
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-danger" id="errorMessage" style="display: none;"></div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="userType" class="form-label">User Type</label>
+                        <select class="form-control" id="userType" name="UserType">
+                            <option value="0">Expert</option>
+                            <option value="1">Farmer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- User Creation Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">User Type</label>
+                        <select class="form-control" id="UserType" name="UserType" >
+                            <option value="0">Expert</option>
+                            <option value="1">Farmer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Device Id</label>
+                        <input type="number" class="form-control" id="DeviceId" name="DeviceId" required disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" id="Username" name="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="Email" name="Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="Password" name="Password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="Phone" name="Phone" required>
+                    </div>
+                    <div class="text-danger" id="error-message" style="display: none;"></div>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/indexedDBService.js"></script>
+<script>
+
+    $(document).ready(function () {
+        const db_name = "UserDatabase";
+        const store_name = "users";
+        const user_key = "loggedInUser";
+
+        toggleAuthButtons();
+
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+            let formData = {
+                Username: $("#username").val(),
+                Password: $("#password").val(),
+                UserType: parseInt($("#userType").val())
+            };
+
+            $.ajax({
+                url: "/Home/Login",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.success) {
+                        saveData(user_key, { username: formData.Username, userType: formData.UserType, secureString: response.secureString }, db_name, store_name);
+                        toggleAuthButtons();
+                        $("#loginModal").modal("hide");
+                    } else {
+                        $("#errorMessage").text(response.message).show();
+                    }
+                },
+                error: function () {
+                    $("#errorMessage").text("An error occurred. Please try again.").show();
+                }
+            });
+        });
+
+        $("#logoutButton").click(function () {
+            removeData(user_key, db_name, store_name); // Remove user session
+            toggleAuthButtons();
+            $("#createUserButton").hide();
+            $("#listUsersButton").hide();
+        });
+
+        function toggleAuthButtons() {
+            loadData(user_key, db_name, store_name)
+                .then((res) => {
+                    console.log(res);
+                    if (res) {
+                        $("#loginButton").hide();
+                        $("#logoutButton").show();
+                        if (res.username === "admin") {
+                            $("#createUserButton").show();
+                            $("#listUsersButton").show();
+                        } else {
+                            $("#createUserButton").hide();
+                            $("#listUsersButton").hide();
+                        }
+                    } else {
+                        $("#loginButton").show();
+                        $("#logoutButton").hide();
+                    }
+                }).catch((err) => {
+                    $("#loginButton").show();
+                    $("#logoutButton").hide();
+                });
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#createUserForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = {
+                Id: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+                    function(c)
+                    {
+                        var r = Math.random() * 16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                        return v.toString(16);
+                    }),
+                Username: $("#Username").val(),
+                deviceId: $("#DeviceId").val(),
+                Email: $("#Email").val(),
+                Password: $("#Password").val(),
+                Phone: $("#Phone").val(),
+                UserType: parseInt($("#UserType").val())
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/CreateUser",
+                data: JSON.stringify(formData),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        alert("User created successfully!");
+                        $("#createUserModal").modal("hide");
+                    } else {
+                        $("#error-message").text(response.message).show();
+                    }
+                },
+                error: function () {
+                    $("#error-message").text("An error occurred. Please try again.").show();
+                }
+            });
+        })
+        
+        $("#UserType").change(function () {
+            let selectedUserType = $(this).val();
+            if (selectedUserType === "0") {
+                $("#DeviceId").prop("disabled", true).val(""); // Disable & clear field
+            } else {
+                $("#DeviceId").prop("disabled", false); // Enable field
+            }
+        });
+    });
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
