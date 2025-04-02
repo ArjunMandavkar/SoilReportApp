@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<form method="post">
+    <div class="mb-3 col-md-4">
+        <label for="userType" class="form-label">User Type</label>
+        <select class="form-control" id="userType" name="UserType" required>
+            <option value="0">Expert</option>
+            <option value="1">Farmer</option>
+        </select>
+    </div>
+    <div class="mb-3 col-md-4">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="Username" required>
+    </div>
+    <div class="mb-3 col-md-4">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="Password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="button" class="btn btn-secondary" onclick="history.back();">Back</button>
+</form>

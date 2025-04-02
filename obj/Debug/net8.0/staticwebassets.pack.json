@@ -253,6 +253,22 @@
       "PackagePath": "staticwebassets/logo.jpg"
     },
     {
+      "Id": "/Users/arjunmandavkar/Documents/CsharpProjects/SoilReportWebsite/SoilReportApp/wwwroot/partofsoil.jpeg",
+      "PackagePath": "staticwebassets/partofsoil.jpeg"
+    },
+    {
+      "Id": "/Users/arjunmandavkar/Documents/CsharpProjects/SoilReportWebsite/SoilReportApp/wwwroot/pitposition.png",
+      "PackagePath": "staticwebassets/pitposition.png"
+    },
+    {
+      "Id": "/Users/arjunmandavkar/Documents/CsharpProjects/SoilReportWebsite/SoilReportApp/wwwroot/vpit.jpeg",
+      "PackagePath": "staticwebassets/vpit.jpeg"
+    },
+    {
+      "Id": "/Users/arjunmandavkar/Documents/CsharpProjects/SoilReportWebsite/SoilReportApp/wwwroot/watermark.jpeg",
+      "PackagePath": "staticwebassets/watermark.jpeg"
+    },
+    {
       "Id": "obj/Debug/net8.0/staticwebassets/msbuild.SoilReportApp.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },

@@ -46,4 +46,5 @@ public class Request
     public User? Farmer { get; set; }
     [ForeignKey("ExpertId")]
     public User? Expert { get; set; }
+    public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
 }

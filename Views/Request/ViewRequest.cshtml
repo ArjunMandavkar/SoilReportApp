@@ -1,0 +1,180 @@
+@model Request
+
+@{
+    bool isEditMode = ViewBag.IsEditMode ?? false;
+    string userRole = ViewBag.UserRole;
+    List<Crop> crops = ViewBag.Crops;
+    List<SoilType> soilTypes = ViewBag.SoilTypes;
+    List<CropStage> cropStages = ViewBag.CropStages;
+    ViewData["Title"] = "View Request";
+}
+
+<h2>View Request</h2>
+
+<form method="post" asp-action="@(isEditMode ? "Edit" : "View")">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Request Id</label>
+            <input type="text" class=" form-control" value="@Model.Id" name="Id" readonly/>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">DeviceId</label>
+            <input type="text" class=" form-control" value="@Model.DeviceId" name="DeviceId" readonly/>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Status</label>
+            <input type="text" class=" form-control" value="@Model.Status.ToString()" name="Status" readonly/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">N Average</label>
+            <input type="number" class=" form-control" value="@Model.NAvg.ToString("0.##")" name="NAvg" readonly/>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">P Average</label>
+            <input type="number" class=" form-control" value="@Model.PAvg.ToString("0.##")" name="PAvg" readonly/>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">K Average</label>
+            <input type="number" class=" form-control" value="@Model.KAvg.ToString("0.##")" name="KAvg" readonly/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Moisture Average</label>
+            <input type="number" class=" form-control" value="@Model.MoistureAvg.ToString("0.##")" name="MoistureAvg" readonly/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Soil Type</label>
+            @if (isEditMode && userRole == "Farmer")
+            {
+                <select id="SoilTypeId" class="form-select" name="SoilTypeId">
+                    @foreach (var soilType in soilTypes)
+                    {
+                        <option value="@soilType.Id" selected="@(Model.SoilTypeId?.ToString() == soilType.Id.ToString() ? "selected" : null)">@soilType.Name</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text" class=" form-control" value="@Model.SoilType?.Name"  readonly/>
+                <input type="hidden" class=" form-control" value="@Model.SoilType?.Id" name="SoilTypeId" readonly/>
+            }
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Crop</label>
+            @if (isEditMode && userRole == "Farmer")
+            {
+                <select id="CropId" class="form-select" name="CropId">
+                    @foreach (var crop in crops)
+                    {
+                        <option value="@crop.Id" selected="@(Model.CropId?.ToString() == crop.Id.ToString() ? "selected" : null)">@crop.Name</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text" class=" form-control" value="@Model.Crop?.Name" readonly/>
+                <input type="hidden" class=" form-control" value="@Model.Crop?.Id" name="CropId" readonly/>
+            }
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Crop Stage</label>
+            @if (isEditMode && userRole == "Farmer")
+            {
+                <select id="CropStageId" class="form-select" name="CropStageId">
+                    @foreach (var cropStage in cropStages)
+                    {
+                        <option value="@cropStage.Id" selected="@(Model.CropStageId?.ToString() == cropStage.Id.ToString() ? "selected" : null)">@cropStage.Name</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text" class=" form-control" value="@Model.CropStage?.Name" readonly/>
+                <input type="hidden" class=" form-control" value="@Model.CropStage?.Id" name="CropStageId" readonly/>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Farmer</label>
+            <input type="text" class=" form-control" value="@Model.Farmer?.Username" name="Farmer" readonly/>
+            <input type="hidden" name="FarmerId" value="@Model.FarmerId" />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Expert</label>
+            <input type="text" class=" form-control" value="@Model.Expert?.Username" name="Expert" readonly/>
+            <input type="hidden" name="ExpertId" value="@Model.ExpertId" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <label class="form-label">Report</label>
+            <textarea type="text" class=" form-control" name="Report" @(isEditMode && userRole == "Expert" ? "" : "readonly")>@Model.Report</textarea>
+        </div>
+    </div>
+    @if (isEditMode)
+    {
+        <button type="submit" class="btn btn-success">Save</button>
+    }
+    else
+    {
+        <a asp-action="View" asp-route-id="@Model.Id" asp-route-edit="true" class="btn btn-primary">Edit</a>
+    }
+    <a asp-action="Requests" class="btn btn-secondary">Back to List</a>
+    <button type="button" class="btn btn-secondary" id="toggleTableBtn">Show Readings</button>
+
+    <div id="readingsTableContainer" style="display: none; padding-top: 3rem">
+        @if (Model.Readings.Any())
+        {
+            <h3>Readings</h3>
+            <table class="table table-bordered">
+                <thead class="table-active">
+                <tr>
+                    <th>Test</th>
+                    <th>N</th>
+                    <th>P</th>
+                    <th>K</th>
+                    <th>Moisture</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var reading in Model.Readings)
+                {
+                    <tr>
+                        <td>@reading.Test</td>
+                        <td>@reading.N</td>
+                        <td>@reading.P</td>
+                        <td>@reading.K</td>
+                        <td>@reading.Moisture</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No readings available.</p>
+        }
+    </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("toggleTableBtn").addEventListener("click", function () {
+            let tableDiv = document.getElementById("readingsTableContainer");
+
+            if (tableDiv.style.display === "none" || tableDiv.style.display === "") {
+                tableDiv.style.display = "block";
+                this.textContent = "Hide Readings";
+            } else {
+                tableDiv.style.display = "none";
+                this.textContent = "Show Readings";
+            }
+        });
+    });
+</script>

@@ -45,7 +45,7 @@ namespace SoilReportApp.Migrations
 
                     b.Property<string>("UserType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Username")
                         .IsRequired()

@@ -34,7 +34,7 @@ namespace SoilReportApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Crop");
+                    b.ToTable("Crops");
                 });
 
             modelBuilder.Entity("SoilReportApp.Models.CropStage", b =>
@@ -49,7 +49,7 @@ namespace SoilReportApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CropStage");
+                    b.ToTable("CropStages");
                 });
 
             modelBuilder.Entity("SoilReportApp.Models.Reading", b =>
@@ -125,6 +125,9 @@ namespace SoilReportApp.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CropId");
@@ -152,7 +155,7 @@ namespace SoilReportApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SoilType");
+                    b.ToTable("SoilTypes");
                 });
 
             modelBuilder.Entity("SoilReportApp.Models.User", b =>
@@ -203,11 +206,13 @@ namespace SoilReportApp.Migrations
                 {
                     b.HasOne("SoilReportApp.Models.Crop", "Crop")
                         .WithMany("Requests")
-                        .HasForeignKey("CropId");
+                        .HasForeignKey("CropId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SoilReportApp.Models.CropStage", "CropStage")
                         .WithMany("Requests")
-                        .HasForeignKey("CropStageId");
+                        .HasForeignKey("CropStageId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SoilReportApp.Models.User", "Expert")
                         .WithMany("RequestsAsExpert")
@@ -222,7 +227,8 @@ namespace SoilReportApp.Migrations
 
                     b.HasOne("SoilReportApp.Models.SoilType", "SoilType")
                         .WithMany("Requests")
-                        .HasForeignKey("SoilTypeId");
+                        .HasForeignKey("SoilTypeId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Crop");
 

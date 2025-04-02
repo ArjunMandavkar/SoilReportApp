@@ -15,6 +15,6 @@ public class User
     public UserType UserType { get; set; }
     public int DeviceId { get; set; }
     
-    public ICollection<Request> RequestsAsFarmer { get; set; }
-    public ICollection<Request> RequestsAsExpert { get; set; }
+    public ICollection<Request>? RequestsAsFarmer { get; set; }
+    public ICollection<Request>? RequestsAsExpert { get; set; }
 }

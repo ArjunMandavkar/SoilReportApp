@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SoilReportApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7137068a48ef4361d75c444e821aa50506e3e62")]
 [assembly: System.Reflection.AssemblyProductAttribute("SoilReportApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SoilReportApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

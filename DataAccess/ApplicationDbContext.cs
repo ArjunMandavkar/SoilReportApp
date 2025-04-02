@@ -10,6 +10,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; } 
     public DbSet<Reading> Readings { get; set; }
     public DbSet<Request> Requests { get; set; }
+    public DbSet<Crop> Crops { get; set; }
+    public DbSet<CropStage> CropStages { get; set; }
+    public DbSet<SoilType> SoilTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,17 +24,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Request>()
             .HasOne(request => request.Crop)
             .WithMany(crop => crop.Requests)
-            .HasForeignKey(request => request.CropId);
+            .HasForeignKey(request => request.CropId)
+            .OnDelete(DeleteBehavior.SetNull); ;
         
         modelBuilder.Entity<Request>()
             .HasOne(request => request.CropStage)
             .WithMany(cropStage => cropStage.Requests)
-            .HasForeignKey(request => request.CropStageId);
+            .HasForeignKey(request => request.CropStageId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         modelBuilder.Entity<Request>()
             .HasOne(request => request.SoilType)
             .WithMany(soilType => soilType.Requests)
-            .HasForeignKey(request => request.SoilTypeId);
+            .HasForeignKey(request => request.SoilTypeId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Request>()
             .HasOne(r => r.Farmer) // Request has one Farmer 

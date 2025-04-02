@@ -1,6 +1,6 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SoilReportApp.DataAccess;
 using SoilReportApp.Models;
 using X.PagedList.Extensions;
@@ -22,35 +22,27 @@ public class HomeController : Controller
     {
         return View();
     }
-    
-    [HttpPost]
-    public IActionResult Login([FromBody] LoginViewModel model)
-    {
-        if (ModelState.IsValid)
-        {
-            List<User> users = _context.Users.ToList();
-            foreach (User user in users)
-            {
-                if (model.Username == user.Username && model.Password == user.Password && model.UserType == user.UserType)
-                {
-                    string secureString = EncryptionHelper.Encrypt(model.Username);
-                    return Json(new { success = true, secureString = secureString });
-                }
-            }
-            return Json(new { success = false, message = "Invalid username or password" });
-        }
-        return Json(new { success = false, message = "Please fill all fields" });
-    }
 
-    [HttpPost]
+    [HttpPost("createUser")]
     [Consumes("application/json")]
-    public IActionResult CreateUser([FromBody] User user)
+    public IActionResult CreateUser([FromBody] UserViewModel model)
     {
+        User user = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = model.Username,
+            Password = model.Password,
+            Email = model.Email,
+            Phone = model.Phone,
+            UserType = model.UserType,
+            DeviceId = string.IsNullOrEmpty(model.DeviceId)?0:int.Parse(model.DeviceId),
+        };
+        
         _context.Users.Add(user);
         _context.SaveChanges();
         return Json(new { success = true });
     }
-
+    
     [HttpPost("SendReading")]
     [Consumes("application/json")]
     public IActionResult SendReading([FromBody] ReadingsViewModel reading)
@@ -69,10 +61,10 @@ public class HomeController : Controller
                 Id = Guid.NewGuid(),
                 Test = r.Test,
                 RequestId = requestId,
-                N = r.N,
-                P = r.P,
-                K = r.K,
-                Moisture = r.Moisture
+                N = Convert.ToDouble(r.N.ToString("N2")),
+                P = Convert.ToDouble(r.P.ToString("N2")),
+                K = Convert.ToDouble(r.K.ToString("N2")),
+                Moisture = Convert.ToDouble(r.Moisture.ToString("N2"))
             });
         }
 
@@ -107,23 +99,10 @@ public class HomeController : Controller
         return View(users);
     }
     
-    [HttpGet("requests")]
-    public IActionResult Requests(int? page)
-    {
-        int pageSize = 10; 
-        int pageNumber = (page ?? 1);
 
-        var requests = _context.Requests
-            .Include(r => r.Farmer)
-            .Include(r => r.Crop)
-            .Include(r => r.SoilType)
-            .Include(r => r.CropStage)
-            .ToPagedList(pageNumber, pageSize);
-        return View(requests);
-    }
     
-    [HttpGet("reports")]
-    public IActionResult Reports()
+    [HttpGet("guidance")]
+    public IActionResult Guidance()
     {
         return View();
     }
