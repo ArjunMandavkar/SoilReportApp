@@ -22,4 +22,9 @@
       <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SoilReportApp.Application\SoilReportApp.Application.csproj" />
+      <ProjectReference Include="..\SoilReportApp.Infrastructure\SoilReportApp.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
