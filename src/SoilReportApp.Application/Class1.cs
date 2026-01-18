@@ -1,4 +1,4 @@
-﻿namespace SoilReportApp.Application;
+﻿namespace SoilReportApp.Web.Application;
 
 public class Class1
 {

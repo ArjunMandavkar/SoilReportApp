@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SoilReportApp.Web.DataAccess;
+using SoilReportApp.Infrastructure.Data;
 
 #nullable disable
 
-namespace SoilReportApp.Web.Migrations
+namespace SoilReportApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250329085944_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250329110723_AddedDeviceId")]
+    partial class AddedDeviceId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,11 +25,14 @@ namespace SoilReportApp.Web.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.User", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -43,8 +46,7 @@ namespace SoilReportApp.Web.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserType")
-                        .IsRequired()
+                    b.Property<int>("UserType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Username")

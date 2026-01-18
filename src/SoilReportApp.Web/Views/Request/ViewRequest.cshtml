@@ -1,4 +1,8 @@
-@model Request
+@using SoilReportApp.Domain.Entities
+@using Crop = SoilReportApp.Domain.Entities.Crop
+@using CropStage = SoilReportApp.Domain.Entities.CropStage
+@using SoilType = SoilReportApp.Domain.Entities.SoilType
+@model SoilReportApp.Domain.Entities.Request
 
 @{
     bool isEditMode = ViewBag.IsEditMode ?? false;

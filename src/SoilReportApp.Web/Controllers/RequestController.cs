@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SoilReportApp.Web.DataAccess;
+using SoilReportApp.Infrastructure.Data;
 using SoilReportApp.Web.Models;
 using X.PagedList.Extensions;
+using DomainRequest = SoilReportApp.Domain.Entities.Request;
+using DomainRequestStatus = SoilReportApp.Domain.Enums.RequestStatus;
+using User = SoilReportApp.Domain.Entities.User;
+using UserType = SoilReportApp.Domain.Enums.UserType;
 
 namespace SoilReportApp.Web.Controllers;
 
@@ -39,12 +43,11 @@ public class RequestController : Controller
         if (user.UserType == UserType.Expert && username != "admin")
         {
             var req = requests
-                .Where(r => (r.Status != RequestStatus.NotStarted) &&
+                .Where(r => (r.Status != DomainRequestStatus.NotStarted) &&
                                     (
                                         (r.ExpertId == user.Id) || (r.ExpertId == null)
                                     )
-                )
-                .ToPagedList(pageNumber, pageSize);
+                ).ToPagedList(pageNumber, pageSize);
             return View(req);
         }
         else if (user.UserType == UserType.Farmer)
@@ -82,19 +85,19 @@ public class RequestController : Controller
     [HttpPost]
     public IActionResult Edit(RequestViewModel model)
     {
-        Request request = Map(model);
+        DomainRequest request = Map(model);
         string username = User.Identity.Name;
         User user = _context.Users.FirstOrDefault(u => u.Username == username);
         if (ModelState.IsValid)
         {
             if (user?.UserType == UserType.Expert)
             {
-                request.Status = RequestStatus.CompletedByExpert;
+                request.Status = DomainRequestStatus.CompletedByExpert;
                 request.ExpertId = user.Id;
             }
             else if (user?.UserType == UserType.Farmer)
             {
-                request.Status = RequestStatus.CompletedByFarmer;
+                request.Status = DomainRequestStatus.CompletedByFarmer;
             }
             
             request.UpdateDate = DateTime.UtcNow;
@@ -107,13 +110,12 @@ public class RequestController : Controller
     }
     
     // Private methods
-    private Request Map(RequestViewModel model)
+    private DomainRequest Map(RequestViewModel model)
     {
-        return new Request()
+        var req = new DomainRequest()
         {
             Id = model.Id,
             DeviceId = model.DeviceId,
-            Status = model.Status,
             NAvg = model.NAvg,
             PAvg = model.PAvg,
             KAvg = model.KAvg,
@@ -125,5 +127,9 @@ public class RequestController : Controller
             FarmerId = model.FarmerId,
             ExpertId = model.ExpertId,
         };
+
+        DomainRequestStatus.TryParse(model.Status.ToString(), out DomainRequestStatus staus);
+        req.Status = (DomainRequestStatus)staus;
+        return req;
     }
 }

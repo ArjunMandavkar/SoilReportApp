@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace SoilReportApp.Web.Migrations
+namespace SoilReportApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class changedeletebehav : Migration
+    public partial class ChangeDeleteBehavior : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

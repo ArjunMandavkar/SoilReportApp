@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace SoilReportApp.Web.Migrations
+namespace SoilReportApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class CreateThreeTables : Migration

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SoilReportApp.Web.Migrations
+namespace SoilReportApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class RequestFKNullable : Migration

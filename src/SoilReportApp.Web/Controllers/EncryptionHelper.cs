@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
+namespace SoilReportApp.Web.Controllers;
 class EncryptionHelper
 {
     private static readonly byte[] Key = Encoding.UTF8.GetBytes("0123456789abcdef0123456789abcdef"); // 32-byte key

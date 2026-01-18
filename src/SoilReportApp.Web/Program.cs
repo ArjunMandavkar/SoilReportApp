@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using SoilReportApp.Web.DataAccess;
-using SoilReportApp.Web.Models;
+using SoilReportApp.Domain.Entities;
+using SoilReportApp.Domain.Enums;
+using SoilReportApp.Infrastructure.Data;
 
-namespace SoilReportApp;
+namespace SoilReportApp.Web;
 
 public class Program
 {

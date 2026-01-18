@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SoilReportApp.Web.DataAccess;
+using SoilReportApp.Infrastructure.Data;
 
 #nullable disable
 
-namespace SoilReportApp.Web.Migrations
+namespace SoilReportApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250331074139_changedeletebehav")]
-    partial class changedeletebehav
+    [Migration("20250401181836_AddedUpdateDate")]
+    partial class AddedUpdateDate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace SoilReportApp.Web.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Crop", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Crop", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,7 +40,7 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("Crops");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.CropStage", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.CropStage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +55,7 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("CropStages");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Reading", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Reading", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -86,7 +86,7 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("Readings");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Request", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Request", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,6 +128,9 @@ namespace SoilReportApp.Web.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CropId");
@@ -143,7 +146,7 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("Requests");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.SoilType", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.SoilType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -158,7 +161,7 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("SoilTypes");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.User", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,9 +194,9 @@ namespace SoilReportApp.Web.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Reading", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Reading", b =>
                 {
-                    b.HasOne("SoilReportApp.Web.Models.Request", "Request")
+                    b.HasOne("SoilReportApp.Domain.Entities.Request", "Request")
                         .WithMany("Readings")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -202,30 +205,30 @@ namespace SoilReportApp.Web.Migrations
                     b.Navigation("Request");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Request", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Request", b =>
                 {
-                    b.HasOne("SoilReportApp.Web.Models.Crop", "Crop")
+                    b.HasOne("SoilReportApp.Domain.Entities.Crop", "Crop")
                         .WithMany("Requests")
                         .HasForeignKey("CropId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("SoilReportApp.Web.Models.CropStage", "CropStage")
+                    b.HasOne("SoilReportApp.Domain.Entities.CropStage", "CropStage")
                         .WithMany("Requests")
                         .HasForeignKey("CropStageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("SoilReportApp.Web.Models.User", "Expert")
+                    b.HasOne("SoilReportApp.Domain.Entities.User", "Expert")
                         .WithMany("RequestsAsExpert")
                         .HasForeignKey("ExpertId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("SoilReportApp.Web.Models.User", "Farmer")
+                    b.HasOne("SoilReportApp.Domain.Entities.User", "Farmer")
                         .WithMany("RequestsAsFarmer")
                         .HasForeignKey("FarmerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SoilReportApp.Web.Models.SoilType", "SoilType")
+                    b.HasOne("SoilReportApp.Domain.Entities.SoilType", "SoilType")
                         .WithMany("Requests")
                         .HasForeignKey("SoilTypeId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -241,27 +244,27 @@ namespace SoilReportApp.Web.Migrations
                     b.Navigation("SoilType");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Web.Models.Crop", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Crop", b =>
                 {
                     b.Navigation("Requests");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Models.CropStage", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.CropStage", b =>
                 {
                     b.Navigation("Requests");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Models.Request", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.Request", b =>
                 {
                     b.Navigation("Readings");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Models.SoilType", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.SoilType", b =>
                 {
                     b.Navigation("Requests");
                 });
 
-            modelBuilder.Entity("SoilReportApp.Models.User", b =>
+            modelBuilder.Entity("SoilReportApp.Domain.Entities.User", b =>
                 {
                     b.Navigation("RequestsAsExpert");
 

@@ -2,8 +2,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using SoilReportApp.Web.DataAccess;
-using SoilReportApp.Web.Models;
+using SoilReportApp.Domain.Entities;
+using SoilReportApp.Domain.Enums;
+using SoilReportApp.Infrastructure.Data;
 
 namespace SoilReportApp.Web.Controllers;
 
