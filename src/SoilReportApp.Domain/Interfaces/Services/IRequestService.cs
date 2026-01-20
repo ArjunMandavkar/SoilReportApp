@@ -1,4 +1,4 @@
-namespace SoilReportApp.Web.Domain.Interfaces.Services;
+namespace SoilReportApp.Domain.Interfaces.Services;
 
 public interface IRequestService
 {

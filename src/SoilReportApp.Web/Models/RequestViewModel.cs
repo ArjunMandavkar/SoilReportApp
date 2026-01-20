@@ -1,3 +1,5 @@
+using SoilReportApp.Domain.Enums;
+
 namespace SoilReportApp.Web.Models;
 
 public class RequestViewModel

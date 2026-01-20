@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SoilReportApp.Infrastructure.Data;
 using SoilReportApp.Web.Models;
 using X.PagedList.Extensions;
-using Reading = SoilReportApp.Domain.Entities.Reading;
-using Request = SoilReportApp.Domain.Entities.Request;
-using RequestStatus = SoilReportApp.Domain.Enums.RequestStatus;
-using User = SoilReportApp.Domain.Entities.User;
-using DomainUserType = SoilReportApp.Domain.Enums.UserType;
+using SoilReportApp.Domain.Entities;
+using SoilReportApp.Domain.Enums;
 
 namespace SoilReportApp.Web.Controllers;
 
@@ -34,15 +31,13 @@ public class HomeController : Controller
         User user = new User
         {
             Id = Guid.NewGuid(),
+            UserType = model.UserType,
             Username = model.Username,
             Password = model.Password,
             Email = model.Email,
             Phone = model.Phone,
             DeviceId = string.IsNullOrEmpty(model.DeviceId)?0:int.Parse(model.DeviceId),
         };
-        
-        DomainUserType.TryParse(user.UserType.ToString(), out DomainUserType type);
-        user.UserType = type;
         
         _context.Users.Add(user);
         _context.SaveChanges();
@@ -106,13 +101,11 @@ public class HomeController : Controller
             var model = new UserViewModel
             {
                 Id = u.Id,
+                UserType = u.UserType,
                 DeviceId = u.DeviceId.ToString(),
                 Email = u.Email,
                 Phone = u.Phone,
             };
-            
-            DomainUserType.TryParse(u.UserType.ToString(), out UserType userType);
-            model.UserType = userType;
             
             return model;
         }).ToPagedList(pageNumber, pageSize);

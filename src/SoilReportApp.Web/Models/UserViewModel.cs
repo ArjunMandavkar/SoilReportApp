@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using SoilReportApp.Domain.Enums;
+
 namespace SoilReportApp.Web.Models;
 public class UserViewModel
 {
