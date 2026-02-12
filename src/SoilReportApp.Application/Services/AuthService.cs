@@ -1,6 +1,7 @@
 using SoilReportApp.Application.DTOs.Auth;
 using SoilReportApp.Application.DTOs.Users;
 using SoilReportApp.Application.Interfaces;
+using SoilReportApp.Application.Security;
 using SoilReportApp.Domain.Interfaces.Repositories;
 
 namespace SoilReportApp.Application.Services;
@@ -29,10 +30,8 @@ public class AuthService : IAuthService
             return AuthResult.Failed("Invalid username or password.");
         }
 
-        // Validate password
-        // Note: In production, use BCrypt.Net.BCrypt.Verify(request.Password, user.Password)
-        // For now, using plain text comparison as per existing implementation
-        if (user.Password != request.Password)
+        // Validate password using secure hashing
+        if (!PasswordHasher.Verify(user.Password, request.Password))
         {
             return AuthResult.Failed("Invalid username or password.");
         }

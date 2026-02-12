@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using SoilReportApp.Application.DTOs.Users;
+using SoilReportApp.Application.Security;
 using SoilReportApp.Application.Services;
 using SoilReportApp.Domain.Entities;
 using SoilReportApp.Domain.Enums;
@@ -51,6 +52,17 @@ public class UserServiceTests
         result.Email.Should().Be(request.Email);
         result.UserType.Should().Be(request.UserType);
         result.DeviceId.Should().Be(request.DeviceId);
+
+        // Ensure password is not stored in plain text
+        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<User>(u =>
+            u.Username == request.Username &&
+            u.Email == request.Email &&
+            u.UserType == request.UserType &&
+            u.DeviceId == request.DeviceId &&
+            !string.IsNullOrWhiteSpace(u.Password) &&
+            u.Password != request.Password &&
+            PasswordHasher.Verify(u.Password, request.Password)
+        )), Times.Once);
 
         _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
     }

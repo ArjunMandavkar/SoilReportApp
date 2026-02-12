@@ -1,5 +1,6 @@
 using SoilReportApp.Application.DTOs.Users;
 using SoilReportApp.Application.Interfaces;
+using SoilReportApp.Application.Security;
 using SoilReportApp.Domain.Entities;
 using SoilReportApp.Domain.Interfaces.Repositories;
 
@@ -27,7 +28,7 @@ public class UserService : IUserService
             Id = Guid.NewGuid(),
             Username = request.Username,
             Email = request.Email,
-            Password = request.Password, // Note: In production, hash this password using BCrypt
+            Password = PasswordHasher.Hash(request.Password),
             Phone = request.Phone ?? string.Empty,
             UserType = request.UserType,
             DeviceId = request.DeviceId

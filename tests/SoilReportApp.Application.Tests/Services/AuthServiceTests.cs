@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using SoilReportApp.Application.DTOs.Auth;
+using SoilReportApp.Application.Security;
 using SoilReportApp.Application.Services;
 using SoilReportApp.Domain.Entities;
 using SoilReportApp.Domain.Enums;
@@ -35,7 +36,7 @@ public class AuthServiceTests
         {
             Id = Guid.NewGuid(),
             Username = "testuser",
-            Password = "correctpassword", // In production, this would be hashed
+            Password = PasswordHasher.Hash("correctpassword"),
             Email = "test@example.com",
             UserType = UserType.Farmer,
             DeviceId = 1
@@ -94,7 +95,7 @@ public class AuthServiceTests
         {
             Id = Guid.NewGuid(),
             Username = "testuser",
-            Password = "correctpassword",
+            Password = PasswordHasher.Hash("correctpassword"),
             UserType = UserType.Farmer
         };
 
