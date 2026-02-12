@@ -23,4 +23,18 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         return await _dbSet.AnyAsync(u => u.Username == username);
     }
+    
+    public async Task<IEnumerable<User>> GetAllPagedAsync(int page, int pageSize)
+    {
+        return await _dbSet
+            .OrderBy(u => u.Username)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+    
+    public async Task<int> GetTotalCountAsync()
+    {
+        return await _dbSet.CountAsync();
+    }
 }
