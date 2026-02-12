@@ -1,13 +1,11 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SoilReportApp.Infrastructure.Data;
+using SoilReportApp.Application.DTOs.Requests;
+using SoilReportApp.Application.Interfaces;
+using SoilReportApp.Domain.Enums;
 using SoilReportApp.Web.Models;
-using X.PagedList.Extensions;
-using DomainRequest = SoilReportApp.Domain.Entities.Request;
-using DomainRequestStatus = SoilReportApp.Domain.Enums.RequestStatus;
-using User = SoilReportApp.Domain.Entities.User;
-using UserType = SoilReportApp.Domain.Enums.UserType;
+using X.PagedList;
 
 namespace SoilReportApp.Web.Controllers;
 
@@ -15,121 +13,90 @@ namespace SoilReportApp.Web.Controllers;
 public class RequestController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly IRequestService _requestService;
     
-    public RequestController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public RequestController(ILogger<HomeController> logger, IRequestService requestService)
     {
         _logger = logger;
-        _context = context;
+        _requestService = requestService;
     }
     
     [HttpGet("requests")]
-    public IActionResult Requests(int? page)
+    public async Task<IActionResult> Requests(int? page)
     {
-        int pageSize = 10; 
-        int pageNumber = (page ?? 1);
-        string username = User.Identity.Name;
-        User user = _context.Users.FirstOrDefault(u => u.Username == username);
+        int pageSize = 10;
+        int pageNumber = page ?? 1;
 
-        var requests = _context.Requests
-            .Include(r => r.Farmer)
-            .Include(r => r.Expert)
-            .Include(r => r.Crop)
-            .Include(r => r.SoilType)
-            .Include(r => r.CropStage)
-            .OrderByDescending(r => r.UpdateDate);
-            //.ToPagedList(pageNumber, pageSize);
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+        var username = User.Identity?.Name ?? string.Empty;
 
-        if (user.UserType == UserType.Expert && username != "admin")
+        if (!Guid.TryParse(userIdClaim, out var userId) || !Enum.TryParse<UserType>(roleClaim, out var userType))
         {
-            var req = requests
-                .Where(r => (r.Status != DomainRequestStatus.NotStarted) &&
-                                    (
-                                        (r.ExpertId == user.Id) || (r.ExpertId == null)
-                                    )
-                ).ToPagedList(pageNumber, pageSize);
-            return View(req);
+            return Forbid();
         }
-        else if (user.UserType == UserType.Farmer)
-        {
-            return View(requests
-                .Where(r => r.FarmerId == user.Id)
-                .ToPagedList(pageNumber, pageSize));
-        }
-        else
-        {
-            return View(requests.ToPagedList(pageNumber, pageSize));
-        }
+
+        bool isAdmin = username.Equals("admin", StringComparison.OrdinalIgnoreCase);
+
+        var requests = await _requestService.GetRequestsForUserAsync(userId, userType, isAdmin, pageNumber, pageSize);
+
+        var pagedRequests = new StaticPagedList<RequestListItemResponse>(
+            requests.ToList(),
+            pageNumber,
+            pageSize,
+            await _requestService.GetRequestCountForUserAsync(userId, userType, isAdmin));
+
+        return View(pagedRequests);
     }
     
     [HttpGet]
-    public IActionResult View(Guid id, bool edit = false)
+    public async Task<IActionResult> View(Guid id, bool edit = false)
     {
-        var request = _context.Requests
-            .Where(r => r.Id == id)
-            .Include(r => r.Farmer)
-            .Include(r => r.Expert)
-            .Include(r => r.Crop)
-            .Include(r => r.SoilType)
-            .Include(r => r.CropStage)
-            .Include(r => r.Readings)
-            .FirstOrDefault();
+        var request = await _requestService.GetByIdWithDetailsAsync(id);
+        if (request is null)
+        {
+            return NotFound();
+        }
+
         ViewBag.IsEditMode = edit;
         ViewBag.UserRole = User.IsInRole("Expert") ? "Expert" : "Farmer";
-        ViewBag.Crops = _context.Crops.ToList();
-        ViewBag.SoilTypes = _context.SoilTypes.ToList();
-        ViewBag.CropStages = _context.CropStages.ToList();
+        ViewBag.Crops = await _requestService.GetAllCropsAsync();
+        ViewBag.SoilTypes = await _requestService.GetAllSoilTypesAsync();
+        ViewBag.CropStages = await _requestService.GetAllCropStagesAsync();
+
         return View("ViewRequest", request);
     }
     
     [HttpPost]
-    public IActionResult Edit(RequestViewModel model)
+    public async Task<IActionResult> Edit(RequestViewModel model)
     {
-        DomainRequest request = Map(model);
-        string username = User.Identity.Name;
-        User user = _context.Users.FirstOrDefault(u => u.Username == username);
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            if (user?.UserType == UserType.Expert)
-            {
-                request.Status = DomainRequestStatus.CompletedByExpert;
-                request.ExpertId = user.Id;
-            }
-            else if (user?.UserType == UserType.Farmer)
-            {
-                request.Status = DomainRequestStatus.CompletedByFarmer;
-            }
-            
-            request.UpdateDate = DateTime.UtcNow;
-            request = _context.Requests.Update(request).Entity;
-            _context.SaveChanges();
-            return RedirectToAction("View", new { id = request.Id });
+            ViewBag.IsEditMode = true;
+
+            var existing = await _requestService.GetByIdWithDetailsAsync(model.Id);
+            return View("ViewRequest", existing);
         }
-        ViewBag.IsEditMode = true;
-        return View("ViewRequest", request);
-    }
-    
-    // Private methods
-    private DomainRequest Map(RequestViewModel model)
-    {
-        var req = new DomainRequest()
+
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+
+        if (!Guid.TryParse(userIdClaim, out var userId) || !Enum.TryParse<UserType>(roleClaim, out var userType))
+        {
+            return Forbid();
+        }
+
+        var updateRequest = new UpdateRequestRequest
         {
             Id = model.Id,
-            DeviceId = model.DeviceId,
-            NAvg = model.NAvg,
-            PAvg = model.PAvg,
-            KAvg = model.KAvg,
-            MoistureAvg = model.MoistureAvg,
             SoilTypeId = model.SoilTypeId,
             CropId = model.CropId,
             CropStageId = model.CropStageId,
-            Report = model.Report,
-            FarmerId = model.FarmerId,
-            ExpertId = model.ExpertId,
+            Report = model.Report
         };
 
-        DomainRequestStatus.TryParse(model.Status.ToString(), out DomainRequestStatus staus);
-        req.Status = (DomainRequestStatus)staus;
-        return req;
+        var updated = await _requestService.UpdateRequestAsync(updateRequest, userId, userType);
+
+        return RedirectToAction("View", new { id = updated.Id });
     }
 }

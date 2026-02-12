@@ -244,6 +244,7 @@ public class RequestService : IRequestService
             FarmerName = request.Farmer?.Username,
             ExpertName = request.Expert?.Username,
             CropName = request.Crop?.Name,
+            CropStageName = request.CropStage?.Name,
             SoilTypeName = request.SoilType?.Name,
             NAvg = request.NAvg,
             PAvg = request.PAvg,

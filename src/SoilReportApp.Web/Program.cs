@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using SoilReportApp.Application;
 using SoilReportApp.Domain.Entities;
 using SoilReportApp.Domain.Enums;
+using SoilReportApp.Infrastructure;
 using SoilReportApp.Infrastructure.Data;
 
 namespace SoilReportApp.Web;
@@ -14,6 +16,7 @@ public class Program
         // Add services to the container.
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddApplicationServices();
         
         // Get the connection string from appsettings.json
         var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
@@ -21,6 +24,9 @@ public class Program
         // Register PostgreSQL as the database provider
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
+        
+        // Register infrastructure (repositories, etc.)
+        builder.Services.AddInfrastructureServices();
         
         // Add authentication services
         builder.Services.AddAuthentication("Cookies")

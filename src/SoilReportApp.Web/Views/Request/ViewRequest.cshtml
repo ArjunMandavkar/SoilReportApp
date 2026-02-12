@@ -1,8 +1,9 @@
-@using SoilReportApp.Domain.Entities
-@using Crop = SoilReportApp.Domain.Entities.Crop
-@using CropStage = SoilReportApp.Domain.Entities.CropStage
-@using SoilType = SoilReportApp.Domain.Entities.SoilType
-@model SoilReportApp.Domain.Entities.Request
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SoilReportApp.Application.DTOs.Lookups
+@using Crop = SoilReportApp.Application.DTOs.Lookups.CropDto
+@using CropStage = SoilReportApp.Application.DTOs.Lookups.CropStageDto
+@using SoilType = SoilReportApp.Application.DTOs.Lookups.SoilTypeDto
+@model SoilReportApp.Application.DTOs.Requests.RequestResponse
 
 @{
     bool isEditMode = ViewBag.IsEditMode ?? false;
@@ -64,8 +65,8 @@
             }
             else
             {
-                <input type="text" class=" form-control" value="@Model.SoilType?.Name"  readonly/>
-                <input type="hidden" class=" form-control" value="@Model.SoilType?.Id" name="SoilTypeId" readonly/>
+                <input type="text" class=" form-control" value="@Model.SoilTypeName"  readonly/>
+                <input type="hidden" class=" form-control" value="@Model.SoilTypeId" name="SoilTypeId" readonly/>
             }
         </div>
         <div class="col-md-4 mb-3">
@@ -81,8 +82,8 @@
             }
             else
             {
-                <input type="text" class=" form-control" value="@Model.Crop?.Name" readonly/>
-                <input type="hidden" class=" form-control" value="@Model.Crop?.Id" name="CropId" readonly/>
+                <input type="text" class=" form-control" value="@Model.CropName" readonly/>
+                <input type="hidden" class=" form-control" value="@Model.CropId" name="CropId" readonly/>
             }
         </div>
         <div class="col-md-4 mb-3">
@@ -98,20 +99,20 @@
             }
             else
             {
-                <input type="text" class=" form-control" value="@Model.CropStage?.Name" readonly/>
-                <input type="hidden" class=" form-control" value="@Model.CropStage?.Id" name="CropStageId" readonly/>
+                <input type="text" class=" form-control" value="@Model.CropStageName" readonly/>
+                <input type="hidden" class=" form-control" value="@Model.CropStageId" name="CropStageId" readonly/>
             }
         </div>
     </div>
     <div class="row">
         <div class="col-md-4 mb-3">
             <label class="form-label">Farmer</label>
-            <input type="text" class=" form-control" value="@Model.Farmer?.Username" name="Farmer" readonly/>
+            <input type="text" class=" form-control" value="@Model.FarmerName" name="Farmer" readonly/>
             <input type="hidden" name="FarmerId" value="@Model.FarmerId" />
         </div>
         <div class="col-md-4 mb-3">
             <label class="form-label">Expert</label>
-            <input type="text" class=" form-control" value="@Model.Expert?.Username" name="Expert" readonly/>
+            <input type="text" class=" form-control" value="@Model.ExpertName" name="Expert" readonly/>
             <input type="hidden" name="ExpertId" value="@Model.ExpertId" />
         </div>
     </div>

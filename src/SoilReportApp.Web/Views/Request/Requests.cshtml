@@ -1,4 +1,4 @@
-﻿@model X.PagedList.IPagedList<SoilReportApp.Domain.Entities.Request>
+﻿@model X.PagedList.IPagedList<SoilReportApp.Application.DTOs.Requests.RequestListItemResponse>
 @using X.PagedList.Mvc.Core
 @{
     ViewData["Title"] = "Requests from farmers";
@@ -25,15 +25,15 @@
     @foreach (var request in Model)
     {
         <tr>
-            <td>@request.Farmer?.Username</td>
+            <td>@request.FarmerName</td>
             <td>@request.DeviceId</td>
             <td>@request.NAvg.ToString("0.##")</td>
             <td>@request.PAvg.ToString("0.##")</td>
             <td>@request.KAvg.ToString("0.##")</td>
             <td>@request.MoistureAvg.ToString("0.##")</td>
-            <td>@request.SoilType?.Name</td>
-            <td>@request.Crop?.Name</td>
-            <td>@request.CropStage?.Name</td>
+            <td>@request.SoilTypeName</td>
+            <td>@request.CropName</td>
+            <td>@request.CropStageName</td>
             <td>@request.Status</td>
             <td>
                 <a class="btn btn-link" asp-route-id="@request.Id" asp-action="View" asp-controller="Request">View</a>
