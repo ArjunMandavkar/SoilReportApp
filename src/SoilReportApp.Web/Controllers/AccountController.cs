@@ -2,19 +2,18 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using SoilReportApp.Domain.Entities;
-using SoilReportApp.Domain.Enums;
-using SoilReportApp.Infrastructure.Data;
+using SoilReportApp.Application.DTOs.Auth;
+using SoilReportApp.Application.Interfaces;
 
 namespace SoilReportApp.Web.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    
-    public AccountController(ApplicationDbContext context)
+    private readonly IAuthService _authService;
+
+    public AccountController(IAuthService authService)
     {
-        _context = context;
+        _authService = authService;
     }
     
     [HttpGet]
@@ -24,36 +23,42 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(string username, string password, UserType userType)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        List<User> users = _context.Users.ToList();
-        foreach (User user in users)
+        if (!ModelState.IsValid)
         {
-            if (username == user.Username && password == user.Password && userType == user.UserType)
-            {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.Role, user.UserType.ToString())
-                };
-                
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = true // Set to true for "Remember Me" functionality
-                };
-                
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
-
-                return RedirectToAction("Index", "Home"); // Redirect after successful login
-            }
+            return View(request);
         }
 
-        ViewBag.ErrorMessage = "Invalid username or password.";
-        return View();
+        var result = await _authService.ValidateCredentialsAsync(request);
+
+        if (!result.Success || result.User is null)
+        {
+            ViewBag.ErrorMessage = result.ErrorMessage ?? "Invalid username or password.";
+            return View(request);
+        }
+
+        var user = result.User;
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.UserType.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = true // Set to true for "Remember Me" functionality
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties);
+
+        return RedirectToAction("Index", "Home"); // Redirect after successful login
     }
 
     [HttpGet]

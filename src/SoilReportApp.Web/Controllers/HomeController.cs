@@ -1,22 +1,29 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SoilReportApp.Infrastructure.Data;
+using SoilReportApp.Application.DTOs.Readings;
+using SoilReportApp.Application.DTOs.Requests;
+using SoilReportApp.Application.DTOs.Users;
+using SoilReportApp.Application.Interfaces;
 using SoilReportApp.Web.Models;
+using X.PagedList;
 using X.PagedList.Extensions;
-using SoilReportApp.Domain.Entities;
-using SoilReportApp.Domain.Enums;
 
 namespace SoilReportApp.Web.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly IUserService _userService;
+    private readonly IRequestService _requestService;
 
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public HomeController(
+        ILogger<HomeController> logger,
+        IUserService userService,
+        IRequestService requestService)
     {
         _logger = logger;
-        _context = context;
+        _userService = userService;
+        _requestService = requestService;
     }
     
     public IActionResult Index()
@@ -26,90 +33,88 @@ public class HomeController : Controller
 
     [HttpPost("createUser")]
     [Consumes("application/json")]
-    public IActionResult CreateUser([FromBody] UserViewModel model)
+    public async Task<IActionResult> CreateUser([FromBody] UserViewModel model)
     {
-        User user = new User
+        if (!ModelState.IsValid)
         {
-            Id = Guid.NewGuid(),
-            UserType = model.UserType,
+            return Json(new { success = false, message = "Invalid user data." });
+        }
+
+        var request = new CreateUserRequest
+        {
             Username = model.Username,
-            Password = model.Password,
             Email = model.Email,
+            Password = model.Password,
             Phone = model.Phone,
-            DeviceId = string.IsNullOrEmpty(model.DeviceId)?0:int.Parse(model.DeviceId),
+            UserType = model.UserType,
+            DeviceId = string.IsNullOrEmpty(model.DeviceId) ? 0 : int.Parse(model.DeviceId)
         };
-        
-        _context.Users.Add(user);
-        _context.SaveChanges();
-        return Json(new { success = true });
+
+        try
+        {
+            var user = await _userService.CreateUserAsync(request);
+            return Json(new { success = true, user });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
     }
     
     [HttpPost("SendReading")]
     [Consumes("application/json")]
-    public IActionResult SendReading([FromBody] ReadingsViewModel reading)
+    public async Task<IActionResult> SendReading([FromBody] ReadingsViewModel reading)
     {
         if (!ModelState.IsValid)
         {
             return Json(new { success = false, message = "Please fill all fields" });
         }
-        
-        var requestId = Guid.NewGuid();
-        var readings = new List<Reading>();
-        foreach (var r in reading.Readings)
-        {
-            readings.Add(new Reading()
-            {
-                Id = Guid.NewGuid(),
-                Test = r.Test,
-                RequestId = requestId,
-                N = Convert.ToDouble(r.N.ToString("N2")),
-                P = Convert.ToDouble(r.P.ToString("N2")),
-                K = Convert.ToDouble(r.K.ToString("N2")),
-                Moisture = Convert.ToDouble(r.Moisture.ToString("N2"))
-            });
-        }
 
-        var request = new Request()
+        var request = new CreateRequestFromReadingsRequest
         {
-            Id = requestId,
             DeviceId = reading.DeviceId,
-            NAvg = readings.Average(r => r.N),
-            PAvg = readings.Average(r => r.P),
-            KAvg = readings.Average(r => r.K),
-            MoistureAvg = readings.Average(r => r.Moisture),
-            Status = RequestStatus.NotStarted,
-            FarmerId = _context.Users.Where(u => u.DeviceId == reading.DeviceId)
-                .Select(u => u.Id).FirstOrDefault()
+            Readings = reading.Readings.Select(r => new ReadingDto
+            {
+                Test = r.Test,
+                N = r.N,
+                P = r.P,
+                K = r.K,
+                Moisture = r.Moisture
+            }).ToList()
         };
-        
-        readings.ForEach(r => _context.Readings.Add(r));
-        _context.Requests.Add(request);
-        _context.SaveChanges();
-        
-        return Json(new { success = true });
+
+        try
+        {
+            await _requestService.CreateFromReadingsAsync(request);
+            return Json(new { success = true });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
     }
 
     [HttpGet("users")]
-    public IActionResult Users(int? page)
+    public async Task<IActionResult> Users(int? page)
     {
         int pageSize = 10; // Number of users per page
-        int pageNumber = (page ?? 1);
+        int pageNumber = page ?? 1;
 
-        var users = _context.Users.OrderBy(u => u.Username).ToList();
-        var pagedUsers = users.Select(u =>
+        var usersPage = await _userService.GetAllUsersPagedAsync(pageNumber, pageSize);
+        var totalCount = await _userService.GetTotalCountAsync();
+
+        var userViewModels = usersPage.Select(u => new UserViewModel
         {
-            var model = new UserViewModel
-            {
-                Id = u.Id,
-                UserType = u.UserType,
-                DeviceId = u.DeviceId.ToString(),
-                Email = u.Email,
-                Phone = u.Phone,
-            };
-            
-            return model;
-        }).ToPagedList(pageNumber, pageSize);
-        
+            Id = u.Id,
+            UserType = u.UserType,
+            DeviceId = u.DeviceId.ToString(),
+            Email = u.Email,
+            Phone = u.Phone,
+            Username = u.Username
+        }).ToList();
+
+        var pagedUsers = new StaticPagedList<UserViewModel>(userViewModels, pageNumber, pageSize, totalCount);
+
         return View(pagedUsers);
     }
     

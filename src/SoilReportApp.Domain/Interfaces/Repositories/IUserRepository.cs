@@ -9,4 +9,14 @@ public interface IUserRepository : IRepository<User>
     Task<User?> GetByDeviceIdAsync(int deviceId);
     
     Task<bool> UsernameExistAsync(string username);
+    
+    /// <summary>
+    /// Gets users with pagination.
+    /// </summary>
+    Task<IEnumerable<User>> GetAllPagedAsync(int page, int pageSize);
+    
+    /// <summary>
+    /// Gets total count of users.
+    /// </summary>
+    Task<int> GetTotalCountAsync();
 }
