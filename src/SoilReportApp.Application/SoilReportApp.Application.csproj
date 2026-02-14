@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SoilReportApp.Domain\SoilReportApp.Domain.csproj" />
-    <ProjectReference Include="..\SoilReportApp.Infrastructure\SoilReportApp.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

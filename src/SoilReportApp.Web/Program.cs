@@ -1,5 +1,6 @@
 using SoilReportApp.Application;
 using SoilReportApp.Domain.Interfaces.Repositories;
+using SoilReportApp.Infrastructure;
 
 namespace SoilReportApp.Web;
 
@@ -12,7 +13,8 @@ public class Program
         // Add services to the container.
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddApplicationServices(builder.Configuration);
+        builder.Services.AddInfrastructureServices(builder.Configuration);
+        builder.Services.AddApplicationServices();
 
         // Add authentication services
         builder.Services.AddAuthentication("Cookies")
